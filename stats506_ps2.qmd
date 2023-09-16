@@ -1,0 +1,52 @@
+---
+title: "stats506_ps2"
+format: html
+editor: visual
+---
+
+## **Problem 1 - Dice Game**
+
+Let\'s play a dice game. It costs \$2 to play. You roll a single 6-sided die.
+
+-   On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins \$4).
+
+-   On a roll of 1, 3, or 5, you lose.
+
+We\'re going to implement this in different ways. Each function takes in as input the number of dice to roll, and each function returns your total winnings or loses.
+
+a\.
+
+-   Version 1: Implement this game using a loop over the die rolls.
+
+    ```{r}
+    #' A function to identify teh amount of winnings (or losses) when you play a dice game that costs$2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose.
+    #' 
+    #' @param numer_dice_to_roll is the number of dice you roll 
+    #' @return your total earnings
+    #' @examples 
+    #' number_dice_to_roll(2)
+    #' number_dice_to_roll(10)
+    play_dice <- function(number_dice_to_roll){
+      total_earnings <- 0
+      for(i in 1:number_dice_to_roll){
+        roll = sample(1:6, size = 1, replace = TRUE)
+        if(roll == 2| roll == 4 | roll == 6){
+          winning = roll
+          total_earnings = total_earnings + roll
+        }else{
+          total_earnings = total_earnings - 2
+        }
+      }
+      return(total_earnings)
+    }
+    ```
+
+-   Version 2: Implement this game using built-in R vectorized functions.
+
+    ```{r}
+
+    ```
+
+-   Version 3: Implement this by collapsing the die rolls into a single `table()`. (Hint: Be careful indexing the table - what happens if you make a table of 5 dice rolls? You may need to look to other resources for how to solve this.)
+
+-   Version 4: Implement this game by using one of the \"`apply`\" functions.
