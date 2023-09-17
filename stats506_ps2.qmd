@@ -19,13 +19,13 @@ a\.
 -   Version 1: Implement this game using a loop over the die rolls.
 
     ```{r}
-    #' A function to identify teh amount of winnings (or losses) when you play a dice game that costs$2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose.
+    #' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose.
     #' 
-    #' @param numer_dice_to_roll is the number of dice you roll 
+    #' @param number_dice_to_roll is the number of dice you roll 
     #' @return your total earnings
     #' @examples 
-    #' number_dice_to_roll(2)
-    #' number_dice_to_roll(10)
+    #' play_dice(2)
+    #' play_dice(10)
     play_dice <- function(number_dice_to_roll){
       total_earnings <- 0
       for(i in 1:number_dice_to_roll){
@@ -44,9 +44,254 @@ a\.
 -   Version 2: Implement this game using built-in R vectorized functions.
 
     ```{r}
-
+    #' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose.
+    #' 
+    #' @param number_dice_to_roll_2 is the number of dice you roll 
+    #' @return your total earnings
+    #' @examples 
+    #' play_dice_2(2)
+    #' play_dice_2(10)
+    play_dice_2 <- function(number_dice_to_roll_2){
+      sample_2 <- sample(x = 1:6, size = number_dice_to_roll_2, replace = TRUE)
+      total_earnings_2 <- sum(sample_2[sample_2 %% 2 == 0]) - (2*(length(sample_2[sample_2 %% 2 != 0])))
+      return(total_earnings_2)
+    }
     ```
 
 -   Version 3: Implement this by collapsing the die rolls into a single `table()`. (Hint: Be careful indexing the table - what happens if you make a table of 5 dice rolls? You may need to look to other resources for how to solve this.)
 
+```{r}
+#' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose.
+#' 
+#' @param number_dice_to_roll_3 is the number of dice you roll 
+#' @return your total earnings
+#' @examples 
+#' play_dice_3(2)
+#' play_dice_3(10)
+play_dice_3 <- function(number_dice_to_roll_3){
+  sample_3 <- sample(x = 1:6, size = number_dice_to_roll_3, replace = TRUE)
+  sample_3_table <- table(sample_3)
+  library(data.table)
+  sample_3_df <- data.table(sample_3_table)
+  sample_3_df$sample_3 <- as.numeric(sample_3_df$sample_3)
+  sample_3_df$type <- ifelse(sample_3_df$sample_3 %% 2 == 0, "even", "odd")
+  sample_3_df$earning <- ifelse(sample_3_df$type == "even", sample_3_df$sample_3 * sample_3_df$N, sample_3_df$N * -2)
+  return((sum(sample_3_df$earning)))
+}
+```
+
 -   Version 4: Implement this game by using one of the \"`apply`\" functions.
+
+```{r}
+#' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose.
+#' 
+#' @param number_dice_to_roll_4 is the number of dice you roll 
+#' @return your total earnings
+#' @examples 
+#' play_dice_4(2)
+#' play_dice_4(10)
+play_dice_4 <- function(number_dice_to_roll_4){
+  sample_4 <- sample(x = 1:6, size = number_dice_to_roll_4, replace = TRUE)
+  evens <- sample_4[lapply(sample_4, '%%', 2) == 0] # Q1: why do I need to separate the modulus and the 2 like this?; COMMENT: https://stackoverflow.com/questions/61484767/function-for-selecting-even-numbers-in-a-vector-in-r helped me
+  odds <- sample_4[lapply(sample_4, '%%', 2) != 0]
+  total_earnings <- (sum(evens)) -  ((2)*(length(odds)))
+  return(total_earnings)
+}
+```
+
+b.  Demonstrate that all versions work. Do so by running each a few times, once with an input a 3, and once with an input of 3000.
+
+    ```{r}
+    play_dice(3)
+    play_dice(3000)
+    ```
+
+    ```{r}
+    play_dice_2(3)
+    play_dice_2(3000)
+    ```
+
+    ```{r}
+    play_dice_3(3)
+    play_dice_3(3000)
+    ```
+
+    ```{r}
+    play_dice_4(3)
+    play_dice_4(3000)
+    ```
+
+c.  Demonstrate that the four versions give the same result. Test with inputs 3 and 3000. (You may need to add a way to control the randomization.)
+
+    ```{r}
+    #' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose. I note that the seed has been set at 5 for the sample generator in this function to ensure that we can check the results across multiple functions.
+    #' 
+    #' @param number_dice_to_roll is the number of dice you roll 
+    #' @return your total earnings
+    #' @examples 
+    #' play_dice(2)
+    #' play_dice(10)
+    play_dice <- function(number_dice_to_roll){
+      total_earnings <- 0
+      set.seed(5)
+      for(i in 1:number_dice_to_roll){
+        roll = sample(1:6, size = 1, replace = TRUE)
+        if(roll == 2| roll == 4 | roll == 6){
+          winning = roll
+          total_earnings = total_earnings + roll
+        }else{
+          total_earnings = total_earnings - 2
+        }
+      }
+      return(total_earnings)
+    }
+
+    #' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose. I note that the seed has been set at 5 for the sample generator in this function to ensure that we can check the results across multiple functions.
+    #' 
+    #' @param number_dice_to_roll_2 is the number of dice you roll 
+    #' @return your total earnings
+    #' @examples 
+    #' play_dice_2(2)
+    #' play_dice_2(10)
+    play_dice_2 <- function(number_dice_to_roll_2){
+      set.seed(5)
+      sample_2 <- sample(x = 1:6, size = number_dice_to_roll_2, replace = TRUE)
+      total_earnings_2 <- sum(sample_2[sample_2 %% 2 == 0]) - (2*(length(sample_2[sample_2 %% 2 != 0])))
+      return(total_earnings_2)
+    }
+
+    #' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose. I note that the seed has been set at 5 for the sample generator in this function to ensure that we can check the results across multiple functions.
+    #' 
+    #' @param number_dice_to_roll_3 is the number of dice you roll 
+    #' @return your total earnings
+    #' @examples 
+    #' play_dice_3(2)
+    #' play_dice_3(10)
+    play_dice_3 <- function(number_dice_to_roll_3){
+      set.seed(5)
+      sample_3 <- sample(x = 1:6, size = number_dice_to_roll_3, replace = TRUE)
+      sample_3_table <- table(sample_3)
+      library(data.table)
+      sample_3_df <- data.table(sample_3_table)
+      sample_3_df$sample_3 <- as.numeric(sample_3_df$sample_3)
+      sample_3_df$type <- ifelse(sample_3_df$sample_3 %% 2 == 0, "even", "odd")
+      sample_3_df$earning <- ifelse(sample_3_df$type == "even", sample_3_df$sample_3 * sample_3_df$N, sample_3_df$N * -2)
+      return((sum(sample_3_df$earning)))
+    }
+
+    #' A function to identify the amount of winnings (or losses) when you play a dice game that costs $2 to play. In this game, you roll a single 6-sided die. On a roll of 2, 4, or 6, you win the amount on the roll (e.g. a roll of 4 wins $4). On a roll of 1, 3, or 5, you lose. I note that the seed has been set at 5 for the sample generator in this function to ensure that we can check the results across multiple functions.
+    #' 
+    #' @param number_dice_to_roll_4 is the number of dice you roll 
+    #' @return your total earnings
+    #' @examples 
+    #' play_dice_4(2)
+    #' play_dice_4(10)
+    play_dice_4 <- function(number_dice_to_roll_4){
+      set.seed(5)
+      sample_4 <- sample(x = 1:6, size = number_dice_to_roll_4, replace = TRUE)
+      evens <- sample_4[lapply(sample_4, '%%', 2) == 0] # Q1: why do I need to separate the modulus and the 2 like this?; COMMENT: https://stackoverflow.com/questions/61484767/function-for-selecting-even-numbers-in-a-vector-in-r helped me
+      odds <- sample_4[lapply(sample_4, '%%', 2) != 0]
+      total_earnings <- (sum(evens)) -  ((2)*(length(odds)))
+      return(total_earnings)
+    }
+    ```
+
+    ```{r}
+    play_dice(3)
+    play_dice(3000)
+
+    play_dice_2(3)
+    play_dice_2(3000)
+
+    play_dice_3(3)
+    play_dice_3(3000)
+
+    play_dice_4(3)
+    play_dice_4(3000)
+    ```
+
+d.   Use the *microbenchmark* package to clearly demonstrate the speed of the implementations. Compare performance with a low input (100) and a large input (10000). Discuss the results
+
+    ```{r}
+    library(microbenchmark)
+    microbenchmark(play_dice(100), play_dice_2(100), play_dice_3(100), play_dice_4(100))
+
+    ```
+
+    According to Hadley Wickham, when looking at the measurement of performance as provided by `microbenchmark`, we should focus on the median and use the upper and lower quartiles to get a feel for the variability. Looking at the median, we see that the function I wrote that involves the table is the slowest. That is probably because I converted my table to a dataframe to do the final sum. Next is the for loop, which given our discussion in class, I would definitely expect to be the slowest. Again, I think that the table function turned out to be slowest because of my use of the dataframe. Next, we have the `apply` function (and specifically `lapply`). As noted in the lecture notes, `lapply` actually drops down to C for its loops, and at each step in the C loop, it evaluates the R function passed in. This is what makes it not vectorized, as a true vectorized function performs its loop in C \emph{and} uses C compiled functions inside that loop. With that explanation in mind, it is not surprising that my version of the function that uses `lapply` is slower than the vectorized version. Finally, the vectorized version (`play_dice_2`) is the fastest. I note that this explanation was for the case with the low input (100). Let's see what happens when we use the large input (10000).
+
+    ```{r}
+    microbenchmark(play_dice(10000), play_dice_2(10000), play_dice_3(10000), play_dice_4(10000))
+    ```
+
+    I noticed a few things here. First, it took a significantly longer time to get through the functions. That just emphasizes that these nanoseconds add up when the numbers get larger. Second, the loop function (`play_dice`) is SO much slower than every other function - even the next slowest (`play_dice_4`), it is slower by about 10 orders of magnitude. Wow. It is interesting that the `lapply` function (`play_dice_4`) took a big hit on speed when we ramped the numbers up. This is clearly the effect of the underlying loops being run over and over again with this function. The table function (`play_dice_3`) had significant gains this time. This suggests to me that while it was slow to set up the dataframe, once it was there, it was faster than going through with something like a loop. Lastly, (and still), the vectorized option is still the fastest.
+
+e.  Do you think this is a fair game? Defend your decision with evidence based upon a Monte Carlo simulation.
+
+    I note that if the dice is fair, the probability of any one digit appearing on a single roll is $1/6$ and the probability of that digit \emph{not} appearing is $1 - 1/6 = 5/6$. Because we are assuming that these rolls are independent (i.e. with replacement), any one of the numbers should not appear more than $5/6^n$ where $n$ is the number of rolls. To test whether the die is "fair" we can compare this theoretical result to the actual result above where I `set.seed(5)` and `sample(x = 1:6, size = number_dice_to_roll, replace = TRUE)`. I note that I used this site to help me with this answer: https://stackoverflow.com/questions/41685557/estimate-the-chance-n-rolls-of-m-fair-six-sided-dice.
+
+    ```{r}
+    fair_dice <- function(number_of_rolls){
+      set.seed(5)
+      x <- replicate(number_of_rolls, 1 %in% sample(x = 1:6, size = 1, replace = TRUE))
+      
+      # Compare to a theoretical result.
+      theory <- 1-(5/6)^(number_of_rolls)
+      avg <- mean(x)
+      Z <- (avg - theory) / sd(x) * sqrt(length(x))
+      p_value <- pnorm(Z, avg, sd(x))
+      return(cat("Z-score:", Z, "\n p-value:", p_value))
+    }
+    fair_dice(10)
+    fair_dice(100)
+    ```
+
+This result suggests to us that the die is indeed fair, with such a low p-value both with a low number of rolls at $10$ and a p-value of $1.196483 \cdot 10^{-15}$ and with a higher number of rolls at $100$ with a p-value that is effectively $0$.
+
+## Problem 2 - Linear Regression
+
+Download the cars data set available at <https://corgis-edu.github.io/corgis/csv/cars/>. The goal is to examine the relationship between horsepower and highway gas mileage.
+
+a\. The names of the variables in this data are way too long. Rename the columns of the data to more reasonable lengths.
+
+```{r}
+library(readr)
+cars <- read.csv('/Users/dereklief/Desktop/MAIN FOLDER/Classes and Other/STATS 506/PS 2/stats506_ps2/cars.csv')
+
+cars <- cars %>% #Q2 for Josh: is there a faster/better way to do this?
+       rename(height = 1, 
+              length = 2,
+              width = 3,
+              driveline = 4,
+              engine_type = 5,
+              hybrid = 6,
+              no_fwd_gears = 7,
+              transmission = 8,
+              city_mpg = 9,
+              fuel_type = 10,
+              highway_mpg = 11,
+              classification = 12,
+              id = 13,
+              make = 14,
+              model_year = 15,
+              year = 16,
+              horsepower = 17,
+              torque = 18)
+```
+
+b\. Restrict the data to cars whose Fuel Type is \"Gasoline\".
+
+```{r}
+gas_cars <- cars[cars$fuel_type == "Gasoline", ]
+table(gas_cars$fuel_type)
+```
+
+c\. Fit a linear regression model predicting MPG on the highway. The predictor of interest is horsepower. Control for:
+
+-   The torque of the engine
+
+-   All three dimensions of the car
+
+-   The year the measurement was made, as a categorical variable. (Not the year the car was manufactured.)
+
+Briefly discuss the estimated relationship between horsepower and highway MPG. Be precise about the interpretation of the estimated coefficient.
