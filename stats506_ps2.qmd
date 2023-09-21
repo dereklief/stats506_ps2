@@ -256,6 +256,7 @@ a\. The names of the variables in this data are way too long. Rename the columns
 
 ```{r}
 library(readr)
+library(dplyr)
 cars <- read.csv('/Users/dereklief/Desktop/MAIN FOLDER/Classes and Other/STATS 506/PS 2/stats506_ps2/cars.csv')
 
 cars <- cars %>% #Q2 for Josh: is there a faster/better way to do this?
@@ -295,3 +296,108 @@ c\. Fit a linear regression model predicting MPG on the highway. The predictor o
 -   The year the measurement was made, as a categorical variable. (Not the year the car was manufactured.)
 
 Briefly discuss the estimated relationship between horsepower and highway MPG. Be precise about the interpretation of the estimated coefficient.
+
+```{r}
+gas_cars$year <- as.factor(gas_cars$year)
+m1 <- lm(highway_mpg ~ horsepower + torque + height + length + width + year, data = gas_cars)
+summary(m1)
+```
+
+The summary statistics from our model, `m1` above show that there is a positive, statistically significant association between `horsepower` and `MPG` controlling for `torque`, `height`, `length`, `width` and `year`. I note that some may interpret these results as "for every 1 unit increase in horsepower, there is a 0.016 unit increase in highway MPG, and that the relationship is statistically significant at the 0.01 level." This claim, in quotations, however, implies causality, which is not something we can determine from `m1`. The best we can do is correlation, which is why I used the word "association" in the beginning.
+
+d\. It seems reasonable that there may be an interaction between horsepower and torque. Refit the model (with `lm`) and generate an interaction plot, showing how the relationship between horsepower and MPG changes as torque changes. Choose reasonable values of horsepower, and show lines for three different reasonable values of torque.
+
+We know that torque and horsepower are continuous variables. To find a reasonable range for horsepower, and a reasonable way to segment torque into three lines, let's look at summaries of their values:
+
+```{r}
+summary(gas_cars$horsepower)
+summary(gas_cars$torque)
+summary(gas_cars$year)
+```
+
+OK, so for horsepower, we can set our x-axis to values between $100$ and \$638\$, and for torque, it makes sense to set "low", "medium" and "high" (0, 1, 2) for values between \$98 - 176.99999\$, $177 - 331.999999$ and $332 - 774$, respectively.
+
+```{r}
+gas_cars$torque_level <- ifelse(gas_cars$torque < 177, "low",
+                          ifelse(gas_cars$torque >= 177 & gas_cars$torque < 332, "medium", "high")) 
+gas_cars$torque_level <- as.factor(gas_cars$torque_level)
+
+```
+
+Now, let's run our model:
+
+```{r}
+library(emmeans)
+library(interactions)
+m2 <- lm(highway_mpg ~ (horsepower*torque_level) + height + length + width + as.factor(year), data = gas_cars)
+summary(m2)
+```
+
+Now we want to produce an interaction plot, but the hint tells us to simplify the problem by choosing just one year. Let's see how many observations are in each year to choose a reasonable year:
+
+```{r}
+table(gas_cars$year)
+```
+
+We could reasonable choose any of the years from \$2010 - 2012\$, but since $2011$ has the most observations, let's choose that year:
+
+```{r}
+gas_cars_2011 <- gas_cars[ which(gas_cars$year==2011), ]
+m3 <- lm(highway_mpg ~ (horsepower*torque_level) + height + length + width, data = gas_cars_2011)
+summary(m3)
+```
+
+```{r}
+emmip(m3, as.factor(torque_level) ~ horsepower, at = list(horsepower = 100:638)) 
+# Q3: how to change order of torque level?
+```
+
+Just for fun, I want to try this with `interact_plot` too:
+
+```{r}
+interact_plot(m3, pred = horsepower, modx = torque_level)
+```
+
+e\. Calculate $\hat{\beta}$ manually (without using `lm`) by first creating a proper design matrix, then using matrix algebra to estimate $\beta$. Confirm that you get the same result as `lm` did prior.
+
+Let's try and do this for each of our three models above, starting with `m1`. I note that I am going to be very deliberate here so everything is clear:
+
+```{r}
+X <- model.matrix(m1, data = gas_cars) # step 1: define our design matrix, X
+X_trans <- t(X) # step 2: based on our design matrix, define X^t
+X_2 <- X_trans %*% X # step 3: multiply X^t by our design matrix
+X_inv <- solve(X_2) # step 4: take the inverse of X^t and X
+y <- gas_cars$highway_mpg #step 5: define y
+
+beta_hat <- (X_inv %*% X_trans) %*% y # step 6: calculate beta hat, which will be a vector of our coefficients (and intercept)
+beta_hat
+```
+
+If we look back up to $2c$, we see that the intercept and coefficients that we get here are identical to what we got in that problem. Now let's do the same for `m2`:
+
+```{r}
+X_m2 <- model.matrix(m2, data = gas_cars) # step 1: define our design matrix, X
+X_m2_trans <- t(X_m2) # step 2: based on our design matrix, define X^t
+X_m2_2 <- X_m2_trans %*% X_m2 # step 3: multiply X^t by our design matrix
+X_m2_inv <- solve(X_m2_2) # step 4: take the inverse of X^t and X
+
+beta_hat_m2 <- (X_m2_inv %*% X_m2_trans) %*% y # step 6: calculate beta hat, which will be a vector of our coefficients (and intercept)
+beta_hat_m2
+```
+
+If we look back up to $2d$, we see that the intercept and coefficients that we get here are identical to what we got in that problem (for `m2`). Now let's do the same for `m3`:
+
+```{r}
+X_m3 <- model.matrix(m3, data = gas_cars_2011) # step 1: define our design matrix, X
+X_m3_trans <- t(X_m3) # step 2: based on our design matrix, define X^t
+X_m3_2 <- X_m3_trans %*% X_m3 # step 3: multiply X^t by our design matrix
+X_m3_inv <- solve(X_m3_2) # step 4: take the inverse of X^t and X
+y_m3 <- gas_cars_2011$highway_mpg # step 5: define y
+
+beta_hat_m3 <- (X_m3_inv %*% X_m3_trans) %*% y_m3 # step 6: calculate beta hat, which will be a vector of our coefficients (and intercept)
+beta_hat_m3
+```
+
+We see again that we get the same result as we did in `m3` in $2d$.
+
+## Problem 3 - Stata
