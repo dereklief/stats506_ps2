@@ -524,3 +524,72 @@ Compressed natural gas |          2        0.04        0.04
 -----------------------+-----------------------------------
                  Total |      4,591      100.00
 ```
+
+c\. Fit a linear regression model predicting MPG on the highway. The predictor of interest is horsepower. Control for:
+
+-   The torque of the engine
+
+-   All three dimensions of the car
+
+-   The year the measurement was made, as a categorical variable. (Not the year the car was manufactured.)
+
+Briefly discuss the estimated relationship between horsepower and highway MPG. Be precise about the interpretation of the estimated coefficient.
+
+First, the do-file input:
+
+``` stata
+  **part c
+ generate byte cat_year = 0 if year==2009
+ replace cat_year = 1 if year == 2010
+ replace cat_year = 2 if year == 2011
+ replace cat_year = 3 if year == 2012
+regress highway_mpg horsepower height length width torque cat_year
+```
+
+Second, the output:
+
+``` stata
+.   **part c
+.  generate byte cat_year = 0 if year==2009
+(4,543 missing values generated)
+
+.  replace cat_year = 1 if year == 2010
+(1,633 real changes made)
+
+.  replace cat_year = 2 if year == 2011
+(1,794 real changes made)
+
+.  replace cat_year = 3 if year == 2012
+(1,116 real changes made)
+
+. regress highway_mpg horsepower height length width torque i.cat_year
+
+      Source |       SS           df       MS      Number of obs   =     4,591
+-------------+----------------------------------   F(8, 4582)      =    413.35
+       Model |  70043.6695         8  8755.45869   Prob > F        =    0.0000
+    Residual |   97055.298     4,582  21.1818634   R-squared       =    0.4192
+-------------+----------------------------------   Adj R-squared   =    0.4182
+       Total |  167098.968     4,590  36.4050038   Root MSE        =    4.6024
+------------------------------------------------------------------------------
+ highway_mpg | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  horsepower |   .0163556   .0022772     7.18   0.000     .0118913      .02082
+      height |   .0099079   .0011267     8.79   0.000      .007699    .0121168
+      length |    .001729   .0008836     1.96   0.050    -3.36e-06    .0034613
+       width |  -.0003343   .0009045    -0.37   0.712    -.0021075    .0014388
+      torque |  -.0507425    .002203   -23.03   0.000    -.0550614   -.0464236
+             |
+    cat_year |
+          1  |  -.4539681   .6768246    -0.67   0.502     -1.78087    .8729342
+          2  |   .1711016   .6757043     0.25   0.800    -1.153604    1.495808
+          3  |   1.302928   .6810076     1.91   0.056    -.0321751    2.638031
+             |
+       _cons |   32.29266   .7225982    44.69   0.000     30.87602     33.7093
+------------------------------------------------------------------------------
+```
+
+Our ouput is identical to that what R produced above (just note that here, the year $2009$ is coded as "0", $2010$ as "1", $2011$ as "2" and $2012$ as "3". Just as a reminder, from above I said (which is the same interpretation here):
+
+The summary statistics from our model above show that there is a positive, statistically significant association between `horsepower` and `MPG` controlling for `torque`, `height`, `length`, `width` and `year`. I note that some may interpret these results as "for every 1 unit increase in horsepower, there is a 0.016 unit increase in highway MPG, and that the relationship is statistically significant at the 0.01 level." This claim, in quotations, however, implies causality, which is not something we can determine from the model. The best we can do is correlation, which is why I used the word "association" in the beginning.
+
+d\. Fit a linear regression model predicting MPG on the highway. The predictor of interest is horsepower. Control for:
