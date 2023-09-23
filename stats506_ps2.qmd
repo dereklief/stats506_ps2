@@ -320,8 +320,8 @@ OK, so for horsepower, we can set our x-axis to values between $100$ and \$638\$
 ```{r}
 gas_cars$torque_level <- ifelse(gas_cars$torque < 177, "low",
                           ifelse(gas_cars$torque >= 177 & gas_cars$torque < 332, "medium", "high")) 
-gas_cars$torque_level <- as.factor(gas_cars$torque_level)
-
+gas_cars$torque_level <- factor(gas_cars$torque_level, level = c("low", "medium", "high"))
+head(gas_cars$torque_level)
 ```
 
 Now, let's run our model:
@@ -401,3 +401,90 @@ beta_hat_m3
 We see again that we get the same result as we did in `m3` in $2d$.
 
 ## Problem 3 - Stata
+
+Repeat problem 2 parts a. through d. in Stata.
+
+**Important**: Repeating part e. (manually estimating β^) in Stata is optional . You can choose to repeat e. for minor extra credit.
+
+Note: Quarto and Stata don\'t play together well, especially if you\'re working on Stata remotely. For this problem, and this problem only, you can write a .Do file to answer this question, then include its input and output directly into your submission, by copying the Stata output window and including a non-evaluated chunk
+
+a\. The names of the variables in this data are way too long. Rename the columns of the data to more reasonable lengths.
+
+First, the do-file input:
+
+``` stata
+**part a
+* load cars dataset
+import delimited "C:\Users\dlief\Desktop\cars (1).csv"
+
+rename dimensionsheight height
+ rename dimensionslength length
+ rename dimensionswidth width
+ rename engineinformationdriveline driveline
+ rename engineinformationenginetype engine_type
+ rename engineinformationhybrid hybrid
+ rename engineinformationnumberofforward no_fwd_gears
+ rename engineinformationtransmission transmission
+ rename fuelinformationcitympg citympg
+ rename fuelinformationfueltype fuel_type
+ rename fuelinformationhighwaympg highway_mpg
+ rename identificationclassification classification
+ rename identificationid id
+ rename identificationmake make
+ rename identificationmodelyear model_year
+ rename identificationyear year
+ rename engineinformationenginestatistic horsepower
+ rename v18 torque
+```
+
+Second, the output:
+
+``` stata
+. do "C:\Users\LOCAL_~1\Temp\STD44b0_000000.tmp"
+
+. **part a
+. * load cars dataset
+. import delimited "C:\Users\dlief\Desktop\cars (1).csv"
+(encoding automatically selected: ISO-8859-1)
+(18 vars, 5,076 obs)
+
+. 
+. rename dimensionsheight height
+
+.  rename dimensionslength length
+
+.  rename dimensionswidth width
+
+.  rename engineinformationdriveline driveline
+
+.  rename engineinformationenginetype engine_type
+
+.  rename engineinformationhybrid hybrid
+
+.  rename engineinformationnumberofforward no_fwd_gears
+
+.  rename engineinformationtransmission transmission
+
+.  rename fuelinformationcitympg citympg
+
+.  rename fuelinformationfueltype fuel_type
+
+.  rename fuelinformationhighwaympg highway_mpg
+
+.  rename identificationclassification classification
+
+.  rename identificationid id
+
+.  rename identificationmake make
+
+.  rename identificationmodelyear model_year
+
+.  rename identificationyear year
+
+.  rename engineinformationenginestatistic horsepower
+
+.  rename v18 torque
+
+. 
+end of do-file
+```
