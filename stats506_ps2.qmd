@@ -592,4 +592,121 @@ Our ouput is identical to that what R produced above (just note that here, the y
 
 The summary statistics from our model above show that there is a positive, statistically significant association between `horsepower` and `MPG` controlling for `torque`, `height`, `length`, `width` and `year`. I note that some may interpret these results as "for every 1 unit increase in horsepower, there is a 0.016 unit increase in highway MPG, and that the relationship is statistically significant at the 0.01 level." This claim, in quotations, however, implies causality, which is not something we can determine from the model. The best we can do is correlation, which is why I used the word "association" in the beginning.
 
-d\. Fit a linear regression model predicting MPG on the highway. The predictor of interest is horsepower. Control for:
+d\. It seems reasonable that there may be an interaction between horsepower and torque. Refit the model (with `lm`) and generate an interaction plot, showing how the relationship between horsepower and MPG changes as torque changes. Choose reasonable values of horsepower, and show lines for three different reasonable values of torque.
+
+First, let's split torque into our three levels and run the model (model 2 in problem 2d above. The do-file input:
+
+``` stata
+ **part d 
+ generate byte cat_torque = 0 if torque < 177
+ replace cat_torque = 1 if (torque >= 177 & torque < 332)
+ replace cat_torque = 2 if torque >= 332
+ recast float horsepower
+ regress highway_mpg i.cat_torque##c.horsepower height length width i.cat_year
+```
+
+And the output:
+
+``` stata
+ **part d 
+.  generate byte cat_torque = 0 if torque < 177
+(3,505 missing values generated)
+
+.  replace cat_torque = 1 if (torque >= 177 & torque < 332)
+(2,356 real changes made)
+
+.  replace cat_torque = 2 if torque >= 332
+(1,149 real changes made)
+
+.  recast float horsepower
+
+.  regress highway_mpg i.cat_torque##c.horsepower height length width i.cat_year
+
+      Source |       SS           df       MS      Number of obs   =     4,591
+-------------+----------------------------------   F(11, 4579)     =    337.89
+       Model |  74865.9527        11   6805.9957   Prob > F        =    0.0000
+    Residual |  92233.0149     4,579  20.1426108   R-squared       =    0.4480
+-------------+----------------------------------   Adj R-squared   =    0.4467
+       Total |  167098.968     4,590  36.4050038   Root MSE        =    4.4881
+
+------------------------------------------------------------------------------
+ highway_mpg | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  cat_torque |
+          1  |   -14.6112   1.028341   -14.21   0.000    -16.62725   -12.59516
+          2  |  -23.17137   1.130887   -20.49   0.000    -25.38845   -20.95428
+             |
+  horsepower |  -.0843874   .0056273   -15.00   0.000    -.0954196   -.0733552
+             |
+  cat_torque#|
+c.horsepower |
+          1  |   .0648037   .0059242    10.94   0.000     .0531893    .0764181
+          2  |   .0836123   .0058457    14.30   0.000     .0721519    .0950726
+             |
+      height |   .0064833   .0011187     5.80   0.000       .00429    .0086765
+      length |   .0006472   .0008626     0.75   0.453     -.001044    .0023384
+       width |  -.0048559   .0009119    -5.33   0.000    -.0066436   -.0030682
+             |
+    cat_year |
+          1  |  -.9267863   .6604044    -1.40   0.161    -2.221497    .3679247
+          2  |   -.261672   .6593885    -0.40   0.692    -1.554391    1.031047
+          3  |    1.06691   .6645702     1.61   0.108    -.2359676    2.369788
+             |
+       _cons |   43.86863   1.169264    37.52   0.000     41.57631    46.16096
+------------------------------------------------------------------------------
+```
+
+We see that this matches our r output. Now, let's simulate model 3 from the same problem above (i.e. just the year $2011$). The do-file input:
+
+``` stata
+ keep if year==2011
+ regress highway_mpg i.cat_torque##c.horsepower height length width
+```
+
+And the output:
+
+``` stata
+ regress highway_mpg i.cat_torque##c.horsepower height length width
+
+      Source |       SS           df       MS      Number of obs   =     1,794
+-------------+----------------------------------   F(8, 1785)      =     94.16
+       Model |  26152.6133         8  3269.07666   Prob > F        =    0.0000
+    Residual |  61972.3945     1,785  34.7184283   R-squared       =    0.2968
+-------------+----------------------------------   Adj R-squared   =    0.2936
+       Total |  88125.0078     1,793  49.1494745   Root MSE        =    5.8922
+
+------------------------------------------------------------------------------
+ highway_mpg | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  cat_torque |
+          1  |  -15.72572   2.135139    -7.37   0.000    -19.91335   -11.53808
+          2  |  -21.09396   2.351654    -8.97   0.000    -25.70624   -16.48167
+             |
+  horsepower |  -.0854907    .011607    -7.37   0.000    -.1082555   -.0627259
+             |
+  cat_torque#|
+c.horsepower |
+          1  |   .0704096   .0122484     5.75   0.000     .0463868    .0944323
+          2  |   .0804768   .0120746     6.66   0.000     .0567949    .1041587
+             |
+      height |   .0056082   .0023354     2.40   0.016     .0010279    .0101885
+      length |   .0023856   .0018118     1.32   0.188    -.0011679    .0059391
+       width |  -.0064036   .0019635    -3.26   0.001    -.0102547   -.0025525
+       _cons |   43.62117   2.023491    21.56   0.000     39.65251    47.58983
+------------------------------------------------------------------------------
+```
+
+Again, the output matches that from r.
+
+Finally, let's make our interactions plot. The do-file:
+
+``` stata
+ margins, at(horsepower =(100 200 300 400 500 600)) over(cat_torque)
+ marginsplot, title("Interaction Plot: Horsepower on MPG over Torque (2011)") xtitle("Horsepower") legend(order(1 "Low" 2 "Medium" 3 "High")) noci
+```
+
+And the output:
+
+![](images/graphps3.png)
+
+And we see that this is exactly the graph we had in r too.
