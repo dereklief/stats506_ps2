@@ -484,7 +484,43 @@ Second, the output:
 .  rename engineinformationenginestatistic horsepower
 
 .  rename v18 torque
+```
 
-. 
-end of do-file
+b\. Restrict the data to cars whose Fuel Type is \"Gasoline\".
+
+First, the do-file input:
+
+``` stata
+ tabulate fuel_type
+ keep if fuel_type=="Gasoline"
+ tabulate fuel_typ
+```
+
+Second, the output:
+
+``` stata
+.  **part b
+.  tabulate fuel_type
+
+ Fuel Information.Fuel |
+                  Type |      Freq.     Percent        Cum.
+-----------------------+-----------------------------------
+Compressed natural gas |          2        0.04        0.04
+           Diesel fuel |         27        0.53        0.57
+                   E85 |        456        8.98        9.55
+              Gasoline |      4,591       90.45      100.00
+-----------------------+-----------------------------------
+                 Total |      5,076      100.00
+
+.  keep if fuel_type=="Gasoline"
+(485 observations deleted)
+
+.  tabulate fuel_type
+
+ Fuel Information.Fuel |
+                  Type |      Freq.     Percent        Cum.
+-----------------------+-----------------------------------
+              Gasoline |      4,591      100.00      100.00
+-----------------------+-----------------------------------
+                 Total |      4,591      100.00
 ```
