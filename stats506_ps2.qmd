@@ -1,8 +1,10 @@
 ---
-title: "stats506_ps2"
+title: "STAT 506, PS 2"
 format: html
 editor: visual
 ---
+
+GitHub Repository: <https://github.com/dereklief/stats506_ps2>
 
 ## **Problem 1 - Dice Game**
 
